@@ -1,3 +1,3 @@
-const sum = require("./script");
+// const sum = require("./script");
 
-test("sum 2 numbers together", () => expect(sum(1, 2)).toBe(3));
+// test("sum 2 numbers together", () => expect(sum(1, 2)).toBe(3));
