@@ -17,7 +17,7 @@ class Ship {
 }
 // 5 Ships, Lengths = 5, 4, 3, 3, 2 | Horizontal/Vertical Axis
 
-let counter = 1;
+let counter = 2;
 class Gameboard {
   constructor(missedAttacks = [], allSunk = false) {
     this.missedAttacks = missedAttacks;
@@ -25,6 +25,7 @@ class Gameboard {
     this.ships = [];
     this.pushShipsTEMP();
     this.createBoard();
+    this.clickToAttackDOM();
   }
 
   //temp function, remove after letting user pick where to place ships
@@ -83,10 +84,11 @@ class Gameboard {
       for (let j = 0; j < 10; j++) {
         const div = document.createElement("div");
         div.id = `${i}${j}`;
+        div.classList.add("gameBoardSquare");
         gameBoard.appendChild(div);
       }
     }
-
+    //Iterate over ships, and display on DOM
     //Example: i.coordinate = [[0, 5], [0, 6]]
     for (const i of this.ships) {
       let square;
@@ -112,12 +114,54 @@ class Gameboard {
     }
   }
 
+  clickToAttackDOM() {
+    const gameBoard = document.getElementById(`gameBoard${counter}`);
+
+    Array.from(gameBoard.querySelectorAll(".gameBoardSquare")).forEach(
+      (square) =>
+        square.addEventListener("click", () => {
+          this.receivedAttack([Number(square.id[0]), Number(square.id[1])]);
+        })
+    );
+  }
+
+  //coords will come from clickToAttackDOM();
   receivedAttack(coordinates) {
-    //check if hit or not, then send the hit function to ship or record coordinates if not hit.
+    for (const i of this.ships) {
+      if (i.coordinate[0][0] === coordinates[0]) {
+        if (
+          coordinates[1] <= i.coordinate[1][1] &&
+          coordinates[1] >= i.coordinate[0][1]
+        ) {
+          i.hit();
+          //check if ship is sunk each time
+          if (i.sunk === true) {
+            let index = this.ships.indexOf(i);
+            this.ships.splice(index, 1);
+          }
+          this.checkIfAllSunk();
+        }
+      } else if (i.coordinate[0][1] === coordinates[1]) {
+        if (
+          coordinates[0] <= i.coordinate[1][0] &&
+          coordinates[0] >= i.coordinate[0][0]
+        ) {
+          i.hit();
+          if (i.sunk === true) {
+            let index = this.ships.indexOf(i);
+            this.ships.splice(index, 1);
+          }
+          this.checkIfAllSunk();
+        }
+      }
+    }
   }
 
   checkIfAllSunk() {
-    this.ships.length !== 0 ? (this.allSunk = true) : (this.allSunk = false);
+    this.ships.length === 0 ? (this.allSunk = true) : false;
+    if (this.allSunk === true) {
+      console.log("all dead");
+    }
   }
 }
 
