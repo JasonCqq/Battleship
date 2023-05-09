@@ -1,7 +1,8 @@
 class Ship {
-  constructor(length, hits = 0, sunk = false) {
-    this.length = length;
+  constructor(shipLength, hits = 0, coordinate = [], sunk = false) {
+    this.shipLength = shipLength;
     this.hits = hits;
+    this.coordinate = coordinate;
     this.sunk = sunk;
   }
 
@@ -11,34 +12,70 @@ class Ship {
   }
 
   isSunk() {
-    this.hits === this.length ? (this.sunk = true) : false;
+    this.hits === this.shipLength ? (this.sunk = true) : false;
   }
 }
 // 5 Ships, Lengths = 5, 4, 3, 3, 2 | Horizontal/Vertical Axis
-
-// Gameboards should be able to place ships at specific coordinates by calling the ship factory function.
-// Gameboards should be able to report whether or not all of their ships have been sunk.
 
 let counter = 1;
 class Gameboard {
   constructor(missedAttacks = [], allSunk = false) {
     this.missedAttacks = missedAttacks;
     this.allSunk = allSunk;
-    this.ships = {
-      ship1: ["00", "05"],
-      ship2: ["00", "05"],
-      ship3: ["00", "05"],
-      ship4: ["00", "05"],
-      ship5: ["00", "05"],
-    };
+    this.ships = [];
+    this.pushShipsTEMP();
     this.createBoard();
   }
 
-  // placeShip(coordinates) {
-
-  //   let ship = new Ship(length);
-  //   this.ships.push(ship);
-  // }
+  //temp function, remove after letting user pick where to place ships
+  pushShipsTEMP() {
+    let ship1 = new Ship(
+      5,
+      0,
+      [
+        [0, 5],
+        [0, 9],
+      ],
+      false
+    );
+    let ship2 = new Ship(
+      4,
+      0,
+      [
+        [5, 2],
+        [8, 2],
+      ],
+      false
+    );
+    let ship3 = new Ship(
+      3,
+      0,
+      [
+        [2, 3],
+        [2, 5],
+      ],
+      false
+    );
+    let ship4 = new Ship(
+      3,
+      0,
+      [
+        [7, 9],
+        [9, 9],
+      ],
+      false
+    );
+    let ship5 = new Ship(
+      2,
+      0,
+      [
+        [7, 0],
+        [8, 0],
+      ],
+      false
+    );
+    this.ships.push(ship1, ship2, ship3, ship4, ship5);
+  }
 
   createBoard() {
     const gameBoard = document.getElementById(`gameBoard${counter}`);
@@ -50,32 +87,46 @@ class Gameboard {
       }
     }
 
-    //Example: coordinates = [00, 05] or coordinates = [00, 50]
-    //Example: coordinates = [44, 48] or coordinates = [44, 84]
-
+    //Example: i.coordinate = [[0, 5], [0, 6]]
     for (const i of this.ships) {
-      if (JSON.stringify(i[0][0]) === JSON.stringify(i[1][0])) {
-        let length = parseInt(i[1][0]) - parseInt(i[0][0]);
-        let ship = new Ship(length);
-      } else if (JSON.stringify(i[0][1]) === JSON.stringify(i[1][1])) {
-        let length = parseInt(i[1][1]) - parseInt(i[0][1]);
-        let ship = new Ship(length);
+      let square;
+      let iterator;
+      if (
+        JSON.stringify(i.coordinate[0][0]) ===
+        JSON.stringify(i.coordinate[1][0])
+      ) {
+        iterator = i.coordinate[0][1];
+        for (let j = 0; j < i.shipLength; j++) {
+          square = document.getElementById(`${i.coordinate[0][0]}${iterator}`);
+          square.style.backgroundColor = "blue";
+          iterator++;
+        }
+      } else {
+        iterator = i.coordinate[0][0];
+        for (let j = 0; j < i.shipLength; j++) {
+          square = document.getElementById(`${iterator}${i.coordinate[0][1]}`);
+          square.style.backgroundColor = "blue";
+          iterator++;
+        }
       }
-      const square = document.getElementById();
-      square.style.backgroundColor = "blue";
     }
   }
 
-  receiveAttack(coordinates) {
+  receivedAttack(coordinates) {
     //check if hit or not, then send the hit function to ship or record coordinates if not hit.
+  }
+
+  checkIfAllSunk() {
+    this.ships.length !== 0 ? (this.allSunk = true) : (this.allSunk = false);
   }
 }
 
 let gameboard1 = new Gameboard();
-counter++;
-let gameboard2 = new Gameboard();
+// counter++;
+// let gameboard2 = new Gameboard();
 
 class Player {
+  // if cpu is true, random moves within bounds, and can't shoot same spot twice.
   constructor(turn = true, cpu = false) {
     this.turn = turn;
   }
