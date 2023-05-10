@@ -16,8 +16,8 @@
   display: grid;
   grid-template-columns: repeat(10, 1fr);
   grid-template-rows: repeat(10, 1fr);
-  height: 55vh;
-  width: 30%;
+  height: 60vh;
+  width: 40%;
   background-color: green;
 }
 

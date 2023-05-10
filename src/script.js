@@ -1,3 +1,12 @@
+//Things to do
+
+//Display missedAttacks on DOM
+//Fix being able to click the same spot multiple times.
+//Finish implementing turn feature
+//Make cpu do random plays (adjacent hits once hit if you want). Plays must be within bounds and not twice.
+//Allow players to click to place ships
+//Finish endGame function
+
 class Ship {
   constructor(shipLength, hits = 0, coordinate = [], sunk = false) {
     this.shipLength = shipLength;
@@ -17,15 +26,14 @@ class Ship {
 }
 // 5 Ships, Lengths = 5, 4, 3, 3, 2 | Horizontal/Vertical Axis
 
-let counter = 2;
 class Gameboard {
-  constructor(missedAttacks = [], allSunk = false) {
-    this.missedAttacks = missedAttacks;
-    this.allSunk = allSunk;
+  constructor(name) {
+    this.name = name;
+    this.missedAttacks = new Set();
     this.ships = [];
     this.pushShipsTEMP();
     this.createBoard();
-    this.clickToAttackDOM();
+    this.attacksOnDOM();
   }
 
   //temp function, remove after letting user pick where to place ships
@@ -79,11 +87,11 @@ class Gameboard {
   }
 
   createBoard() {
-    const gameBoard = document.getElementById(`gameBoard${counter}`);
+    const gameBoard = document.getElementById(`${this.name}`);
     for (let i = 0; i < 10; i++) {
       for (let j = 0; j < 10; j++) {
         const div = document.createElement("div");
-        div.id = `${i}${j}`;
+        div.classList.add(`${i}${j}`);
         div.classList.add("gameBoardSquare");
         gameBoard.appendChild(div);
       }
@@ -99,82 +107,96 @@ class Gameboard {
       ) {
         iterator = i.coordinate[0][1];
         for (let j = 0; j < i.shipLength; j++) {
-          square = document.getElementById(`${i.coordinate[0][0]}${iterator}`);
-          square.style.backgroundColor = "blue";
+          square = gameBoard.getElementsByClassName(
+            `${i.coordinate[0][0]}${iterator}`
+          );
+          square[0].style.backgroundColor = "blue";
           iterator++;
         }
       } else {
         iterator = i.coordinate[0][0];
         for (let j = 0; j < i.shipLength; j++) {
-          square = document.getElementById(`${iterator}${i.coordinate[0][1]}`);
-          square.style.backgroundColor = "blue";
+          square = gameBoard.getElementsByClassName(
+            `${iterator}${i.coordinate[0][1]}`
+          );
+          square[0].style.backgroundColor = "blue";
           iterator++;
         }
       }
     }
   }
 
-  clickToAttackDOM() {
-    const gameBoard = document.getElementById(`gameBoard${counter}`);
-
+  attacksOnDOM() {
+    const gameBoard = document.getElementById(`${this.name}`);
     Array.from(gameBoard.querySelectorAll(".gameBoardSquare")).forEach(
       (square) =>
         square.addEventListener("click", () => {
-          this.receivedAttack([Number(square.id[0]), Number(square.id[1])]);
+          this.receivedAttack([
+            Number(square.className[0]),
+            Number(square.className[1]),
+          ]);
         })
     );
   }
 
-  //coords will come from clickToAttackDOM();
+  //coords will come from attacksOnDOM();
   receivedAttack(coordinates) {
+    const gameBoard = document.getElementById(`${this.name}`);
+    let div = gameBoard.getElementsByClassName(
+      `${coordinates[0]}${coordinates[1]}`
+    );
     for (const i of this.ships) {
-      if (i.coordinate[0][0] === coordinates[0]) {
-        if (
-          coordinates[1] <= i.coordinate[1][1] &&
-          coordinates[1] >= i.coordinate[0][1]
-        ) {
-          i.hit();
-          //check if ship is sunk each time
-          if (i.sunk === true) {
-            let index = this.ships.indexOf(i);
-            this.ships.splice(index, 1);
-          }
-          this.checkIfAllSunk();
-        }
-      } else if (i.coordinate[0][1] === coordinates[1]) {
-        if (
-          coordinates[0] <= i.coordinate[1][0] &&
-          coordinates[0] >= i.coordinate[0][0]
-        ) {
-          i.hit();
-          if (i.sunk === true) {
-            let index = this.ships.indexOf(i);
-            this.ships.splice(index, 1);
-          }
-          this.checkIfAllSunk();
-        }
+      if (
+        coordinates[0] === i.coordinate[0][0] &&
+        coordinates[1] <= i.coordinate[1][1] &&
+        coordinates[1] >= i.coordinate[0][1]
+      ) {
+        i.hit();
+        div[0].style.backgroundColor = "lightblue";
+        this.checkIfSunkAndDelete(i);
+        this.checkIfAllSunk();
+        return;
+      } else if (
+        coordinates[1] === i.coordinate[0][1] &&
+        coordinates[0] <= i.coordinate[1][0] &&
+        coordinates[0] >= i.coordinate[0][0]
+      ) {
+        i.hit();
+        div[0].style.backgroundColor = "lightblue";
+        this.checkIfSunkAndDelete(i);
+        this.checkIfAllSunk();
+        return;
       }
     }
+    this.missedAttacks.add(coordinates);
+    div[0].style.backgroundColor = "red";
   }
 
-  checkIfAllSunk() {
-    this.ships.length === 0 ? (this.allSunk = true) : false;
-    if (this.allSunk === true) {
-      console.log("all dead");
+  checkIfSunkAndDelete(object) {
+    if (object.sunk === true) {
+      const index = this.ships.indexOf(object);
+      this.ships.splice(index, 1);
+      console.log("1 dead");
     }
+    return false;
+  }
+  checkIfAllSunk() {
+    this.ships.length === 0 ? this.endGame() : false;
+  }
+
+  endGame() {
+    console.log("game over");
   }
 }
 
-let gameboard1 = new Gameboard();
-// counter++;
-// let gameboard2 = new Gameboard();
-
 class Player {
-  // if cpu is true, random moves within bounds, and can't shoot same spot twice.
   constructor(turn = true, cpu = false) {
     this.turn = turn;
   }
 }
+
+let gameBoard1 = new Gameboard("gameBoard1");
+let gameBoard2 = new Gameboard("gameBoard2");
 
 let player = new Player();
 let computer = new Player(false, true);
