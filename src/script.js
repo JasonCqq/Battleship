@@ -1,7 +1,7 @@
 //Things to do
 
-//Display missedAttacks on DOM
-//Fix being able to click the same spot multiple times.
+//Display missedAttacks on DOM - DONE
+//Fix being able to click the same spot multiple times. - DONE
 //Finish implementing turn feature
 //Make cpu do random plays (adjacent hits once hit if you want). Plays must be within bounds and not twice.
 //Allow players to click to place ships
@@ -30,6 +30,7 @@ class Gameboard {
   constructor(name) {
     this.name = name;
     this.missedAttacks = new Set();
+    this.landedAttacks = new Set();
     this.ships = [];
     this.pushShipsTEMP();
     this.createBoard();
@@ -141,6 +142,13 @@ class Gameboard {
 
   //coords will come from attacksOnDOM();
   receivedAttack(coordinates) {
+    if (
+      this.landedAttacks.has(JSON.stringify(coordinates)) ||
+      this.missedAttacks.has(JSON.stringify(coordinates))
+    ) {
+      return;
+    }
+
     const gameBoard = document.getElementById(`${this.name}`);
     let div = gameBoard.getElementsByClassName(
       `${coordinates[0]}${coordinates[1]}`
@@ -153,6 +161,7 @@ class Gameboard {
       ) {
         i.hit();
         div[0].style.backgroundColor = "lightblue";
+        this.landedAttacks.add(JSON.stringify(coordinates));
         this.checkIfSunkAndDelete(i);
         this.checkIfAllSunk();
         return;
@@ -163,12 +172,13 @@ class Gameboard {
       ) {
         i.hit();
         div[0].style.backgroundColor = "lightblue";
+        this.landedAttacks.add(JSON.stringify(coordinates));
         this.checkIfSunkAndDelete(i);
         this.checkIfAllSunk();
         return;
       }
     }
-    this.missedAttacks.add(coordinates);
+    this.missedAttacks.add(JSON.stringify(coordinates));
     div[0].style.backgroundColor = "red";
   }
 
