@@ -46,8 +46,32 @@
 #main {
   height: 100vh;
   width: 100%;
-  display: flex;
-  gap: 50px;
+  display: none;
+  justify-content: center;
+  align-items: center;
+  gap: 100px;
+  background-color: #1c1a1a;
+}
+
+#main .infoBox {
+  color: white;
+  border: none;
+  width: 150px;
+  position: absolute;
+  margin-top: 80vh;
+}
+
+#results {
+  display: none;
+  background-color: #1c1a1a;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+#results p {
+  font-size: 3rem;
+  color: white;
 }
 
 #preGameBoard,

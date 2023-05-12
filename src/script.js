@@ -1,8 +1,6 @@
 //Things to do
 
-//Finish implementing turn feature
-//Make cpu do random plays (adjacent hits once hit if you want). Plays must be within bounds and not clicked before.
-//Allow players to click to place ships
+//Just need CPU to generate random ships.
 
 class Player {
   constructor(cpu = false, turn) {
@@ -40,7 +38,6 @@ class Gameboard {
     this.missedAttacks = new Set();
     this.landedAttacks = new Set();
     this.ships = [];
-    this.attacksOnDOM();
   }
 
   createBoard() {
@@ -55,6 +52,12 @@ class Gameboard {
     }
     //Iterate over ships, and display on DOM
     //Example: i.coordinate = [[0, 5], [0, 6]]
+
+    if (this.name === "gameBoard2") {
+      this.attacksOnDOM();
+      return;
+    }
+
     for (const i of this.ships) {
       let square;
       let iterator;
@@ -81,6 +84,7 @@ class Gameboard {
         }
       }
     }
+    this.attacksOnDOM();
   }
 
   attacksOnDOM() {
@@ -102,6 +106,56 @@ class Gameboard {
     );
   }
 
+  //temp function, remove after letting user pick where to place ships
+  pushShipsTEMP() {
+    let ship1 = new Ship(
+      5,
+      0,
+      [
+        [0, 5],
+        [0, 9],
+      ],
+      false
+    );
+    let ship2 = new Ship(
+      4,
+      0,
+      [
+        [5, 2],
+        [8, 2],
+      ],
+      false
+    );
+    let ship3 = new Ship(
+      3,
+      0,
+      [
+        [2, 3],
+        [2, 5],
+      ],
+      false
+    );
+    let ship4 = new Ship(
+      3,
+      0,
+      [
+        [7, 9],
+        [9, 9],
+      ],
+      false
+    );
+    let ship5 = new Ship(
+      2,
+      0,
+      [
+        [7, 0],
+        [8, 0],
+      ],
+      false
+    );
+    this.ships.push(ship1, ship2, ship3, ship4, ship5);
+  }
+
   computerAttacksOnDOM() {
     if (CPU.turn !== true) {
       return;
@@ -112,6 +166,7 @@ class Gameboard {
     player.turn = true;
   }
 
+  //cpu moves
   generateCoordinates() {
     let randomCoordinate = [
       Math.floor(Math.random() * 10),
@@ -179,16 +234,28 @@ class Gameboard {
     if (object.sunk === true) {
       const index = this.ships.indexOf(object);
       this.ships.splice(index, 1);
-      console.log("1 dead");
     }
     return false;
   }
   checkIfAllSunk() {
     this.ships.length === 0 ? this.endGame() : false;
   }
-
   endGame() {
-    console.log(`${this.name} Loses`);
+    const p = document.createElement("p");
+    const results = document.getElementById("results");
+    const main = document.getElementById("main");
+
+    if (this.name === "gameBoard2") {
+      p.textContent = "Player wins";
+      results.appendChild(p);
+      results.style.display = "flex";
+      main.remove();
+    } else {
+      p.textContent = "Computer wins";
+      results.appendChild(p);
+      results.style.display = "flex";
+      main.remove();
+    }
   }
 }
 
@@ -235,7 +302,7 @@ function createPreGameBoard() {
             [Number(squareNumber[0]), Number(squareNumber[1])],
             [
               Number(squareNumber[0]),
-              Number(squareNumber[1]) + Number(shipLengthDOM),
+              Number(squareNumber[1]) + Number(shipLengthDOM.innerText),
             ],
           ],
           false,
@@ -245,9 +312,12 @@ function createPreGameBoard() {
         gameBoard1.ships.push(ship);
 
         if (shipLengthArray.length === 0) {
+          mainPage.remove();
           mainPage.style.display = "none";
           main.style.display = "flex";
           gameBoard1.createBoard();
+          gameBoard2.pushShipsTEMP();
+          gameBoard2.createBoard();
         }
       } else if (axisButton.innerText === "VERTICAL") {
         let ship = new Ship(
@@ -256,7 +326,7 @@ function createPreGameBoard() {
           [
             [Number(squareNumber[0]), Number(squareNumber[1])],
             [
-              Number(squareNumber[0]) + Number(shipLengthDOM),
+              Number(squareNumber[0]) + Number(shipLengthDOM.innerText),
               Number(squareNumber[1]),
             ],
           ],
@@ -267,9 +337,12 @@ function createPreGameBoard() {
         gameBoard1.ships.push(ship);
 
         if (shipLengthArray.length === 0) {
+          mainPage.remove();
           mainPage.style.display = "none";
           main.style.display = "flex";
           gameBoard1.createBoard();
+          gameBoard2.pushShipsTEMP();
+          gameBoard2.createBoard();
         }
       }
     })
