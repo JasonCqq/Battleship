@@ -15,11 +15,12 @@ const player = new Player(false, true);
 const CPU = new Player(true, false);
 
 class Ship {
-  constructor(shipLength, hits = 0, coordinate = [], sunk = false) {
+  constructor(shipLength, hits = 0, coordinate = [], sunk = false, shipNumber) {
     this.shipLength = shipLength;
     this.hits = hits;
     this.coordinate = coordinate;
     this.sunk = sunk;
+    this.shipNumber = shipNumber;
   }
 
   hit() {
@@ -39,59 +40,7 @@ class Gameboard {
     this.missedAttacks = new Set();
     this.landedAttacks = new Set();
     this.ships = [];
-    this.pushShipsTEMP();
-    this.createBoard();
     this.attacksOnDOM();
-  }
-
-  //temp function, remove after letting user pick where to place ships
-  pushShipsTEMP() {
-    let ship1 = new Ship(
-      5,
-      0,
-      [
-        [0, 5],
-        [0, 9],
-      ],
-      false
-    );
-    let ship2 = new Ship(
-      4,
-      0,
-      [
-        [5, 2],
-        [8, 2],
-      ],
-      false
-    );
-    let ship3 = new Ship(
-      3,
-      0,
-      [
-        [2, 3],
-        [2, 5],
-      ],
-      false
-    );
-    let ship4 = new Ship(
-      3,
-      0,
-      [
-        [7, 9],
-        [9, 9],
-      ],
-      false
-    );
-    let ship5 = new Ship(
-      2,
-      0,
-      [
-        [7, 0],
-        [8, 0],
-      ],
-      false
-    );
-    this.ships.push(ship1, ship2, ship3, ship4, ship5);
   }
 
   createBoard() {
@@ -245,3 +194,105 @@ class Gameboard {
 
 const gameBoard1 = new Gameboard("gameBoard1");
 const gameBoard2 = new Gameboard("gameBoard2");
+
+function createPreGameBoard() {
+  //create 10x10
+  const gameBoard = document.getElementById(`preGameBoard`);
+  for (let i = 0; i < 10; i++) {
+    for (let j = 0; j < 10; j++) {
+      const div = document.createElement("div");
+      div.classList.add(`${i}${j}`);
+      div.classList.add("gameBoardSquare");
+      gameBoard.appendChild(div);
+    }
+  }
+
+  const axisButton = document.getElementById("axisButton");
+  axisButton.addEventListener("click", () => {
+    axisButton.innerText === "HORIZONTAL"
+      ? (axisButton.innerText = "VERTICAL")
+      : (axisButton.innerText = "HORIZONTAL");
+  });
+
+  const mainPage = document.getElementById("mainPage");
+  const main = document.getElementById("main");
+  const shipLengthDOM = document.getElementById("shipLength");
+  const tempArray = Array.from(gameBoard.querySelectorAll(".gameBoardSquare"));
+
+  const shipLengthArray = [5, 4, 3, 3, 2];
+  let shipCounter = 1;
+
+  tempArray.forEach((div) =>
+    div.addEventListener("click", () => {
+      let squareNumber = div.classList[0].split("");
+      shipLengthDOM.innerText = shipLengthArray.shift();
+      if (axisButton.innerText === "HORIZONTAL") {
+        //  constructor(shipLength, hits = 0, coordinate = [], sunk = false, shipNumber)
+        let ship = new Ship(
+          shipLengthDOM.innerText[shipLengthDOM.innerText.length - 1],
+          0,
+          [
+            [Number(squareNumber[0]), Number(squareNumber[1])],
+            [
+              Number(squareNumber[0]),
+              Number(squareNumber[1]) + Number(shipLengthDOM),
+            ],
+          ],
+          false,
+          shipCounter
+        );
+        paintSquare([Number(squareNumber[0]), Number(squareNumber[1])]);
+        gameBoard1.ships.push(ship);
+
+        if (shipLengthArray.length === 0) {
+          mainPage.style.display = "none";
+          main.style.display = "flex";
+          gameBoard1.createBoard();
+        }
+      } else if (axisButton.innerText === "VERTICAL") {
+        let ship = new Ship(
+          shipLengthDOM.innerText[shipLengthDOM.innerText.length - 1],
+          0,
+          [
+            [Number(squareNumber[0]), Number(squareNumber[1])],
+            [
+              Number(squareNumber[0]) + Number(shipLengthDOM),
+              Number(squareNumber[1]),
+            ],
+          ],
+          false,
+          shipCounter
+        );
+        paintSquare([Number(squareNumber[0]), Number(squareNumber[1])]);
+        gameBoard1.ships.push(ship);
+
+        if (shipLengthArray.length === 0) {
+          mainPage.style.display = "none";
+          main.style.display = "flex";
+          gameBoard1.createBoard();
+        }
+      }
+    })
+  );
+
+  function paintSquare(i) {
+    let square;
+    let iterator = Number(shipLengthDOM.innerText);
+    if (axisButton.innerText === "HORIZONTAL") {
+      let reference = i[1];
+      for (let j = 0; j < iterator; j++) {
+        square = gameBoard.getElementsByClassName(`${i[0]}${reference}`);
+        reference++;
+        square[0].style.backgroundColor = "blue";
+      }
+    } else {
+      let reference = i[0];
+      for (let j = 0; j < iterator; j++) {
+        square = gameBoard.getElementsByClassName(`${reference}${i[1]}`);
+        reference++;
+        square[0].style.backgroundColor = "blue";
+      }
+    }
+  }
+}
+createPreGameBoard();

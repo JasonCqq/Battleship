@@ -1,7 +1,46 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@500&display=swap");
+
 * {
   padding: 0;
   margin: 0;
   box-sizing: border-box;
+  font-family: "Poppins", sans-serif;
+}
+
+#mainPage {
+  background-color: #1c1a1a;
+  height: 100vh;
+  width: 100%;
+  text-align: center;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#mainPage h1 {
+  font-size: 2.5rem;
+  padding-bottom: 5vh;
+  padding-top: 5vh;
+}
+
+#mainPage h5 {
+  margin-top: 3vh;
+}
+
+#mainPage button {
+  border: none;
+  padding: 10px 25px;
+  margin-top: 2vh;
+}
+#mainPage button:hover {
+  cursor: pointer;
+}
+
+#confirm {
+  background-color: blue;
+  color: white;
+  font-weight: bold;
 }
 
 #main {
@@ -11,6 +50,7 @@
   gap: 50px;
 }
 
+#preGameBoard,
 #gameBoard1,
 #gameBoard2 {
   display: grid;
@@ -18,9 +58,10 @@
   grid-template-rows: repeat(10, 1fr);
   height: 60vh;
   width: 40%;
-  background-color: green;
+  background-color: lightgreen;
 }
 
+#preGameBoard,
 #gameBoard1,
 #gameBoard2,
 div {
