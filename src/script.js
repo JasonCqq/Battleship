@@ -1,11 +1,18 @@
 //Things to do
 
-//Display missedAttacks on DOM - DONE
-//Fix being able to click the same spot multiple times. - DONE
 //Finish implementing turn feature
-//Make cpu do random plays (adjacent hits once hit if you want). Plays must be within bounds and not twice.
+//Make cpu do random plays (adjacent hits once hit if you want). Plays must be within bounds and not clicked before.
 //Allow players to click to place ships
-//Finish endGame function
+
+class Player {
+  constructor(cpu = false, turn) {
+    this.turn = turn;
+    this.cpu = cpu;
+  }
+}
+
+const player = new Player(false, true);
+const CPU = new Player(true, false);
 
 class Ship {
   constructor(shipLength, hits = 0, coordinate = [], sunk = false) {
@@ -128,6 +135,9 @@ class Gameboard {
   }
 
   attacksOnDOM() {
+    if (player.turn !== true) {
+      return;
+    }
     const gameBoard = document.getElementById(`${this.name}`);
     Array.from(gameBoard.querySelectorAll(".gameBoardSquare")).forEach(
       (square) =>
@@ -136,8 +146,42 @@ class Gameboard {
             Number(square.className[0]),
             Number(square.className[1]),
           ]);
+          player.turn = false;
+          CPU.turn = true;
+          this.computerAttacksOnDOM();
         })
     );
+  }
+
+  computerAttacksOnDOM() {
+    if (CPU.turn !== true) {
+      return;
+    }
+
+    gameBoard1.receivedAttack(this.generateCoordinates());
+    CPU.turn = false;
+    player.turn = true;
+  }
+
+  generateCoordinates() {
+    let randomCoordinate = [
+      Math.floor(Math.random() * 10),
+      Math.floor(Math.random() * 10),
+    ];
+
+    while (
+      this.landedAttacks.has(
+        JSON.stringify(randomCoordinate) &&
+          this.missedAttacks.has(JSON.stringify(randomCoordinate))
+      )
+    ) {
+      randomCoordinate = [
+        Math.floor(Math.random() * 10),
+        Math.floor(Math.random() * 10),
+      ];
+    }
+
+    return randomCoordinate;
   }
 
   //coords will come from attacksOnDOM();
@@ -195,18 +239,9 @@ class Gameboard {
   }
 
   endGame() {
-    console.log("game over");
+    console.log(`${this.name} Loses`);
   }
 }
 
-class Player {
-  constructor(turn = true, cpu = false) {
-    this.turn = turn;
-  }
-}
-
-let gameBoard1 = new Gameboard("gameBoard1");
-let gameBoard2 = new Gameboard("gameBoard2");
-
-let player = new Player();
-let computer = new Player(false, true);
+const gameBoard1 = new Gameboard("gameBoard1");
+const gameBoard2 = new Gameboard("gameBoard2");
